@@ -28,6 +28,7 @@ mago(Mago):-
 
 mago(ron).
 mago(luna).
+mago(iniesta).%inventado para casa ganadora
 
 % Punto1)
 % 1. Saber si una casa permite entrar a un mago, lo cual se cumple para cualquier mago y 
@@ -96,6 +97,8 @@ magoHizo(draco,ir_a_mazmorras).
 magoHizo(ron,ganar_partida_ajedrez_magico).
 magoHizo(hermione,salvar_amigos).
 magoHizo(harry,vencer_voldemort).
+magoHizo(iniesta,vencer_voldemort).
+magoHizo(iniesta,ganar_partida_ajedrez_magico).
 
 %reconocimiento para las malas acciones
 reconocimiento(Mago,Accion,Puntaje):-
@@ -110,14 +113,15 @@ reconocimiento(Mago,_,0):-
 reconocimiento(ron,ganar_partida_ajedrez_magico,50).
 reconocimiento(hermione,salvar_amigos,50).
 reconocimiento(harry,vencer_voldemort,60).
+reconocimiento(iniesta,vencer_voldemort,160).
+reconocimiento(iniesta,ganar_partida_ajedrez_magico,170).
 
-
-
-esDe(hermione, gryffindor). 
-esDe(ron, gryffindor). 
-esDe(harry, gryffindor). 
-esDe(draco, slytherin). 
-esDe(luna, ravenclaw).
+esDe(hermione,gryffindor). 
+esDe(ron,gryffindor). 
+esDe(harry,gryffindor). 
+esDe(draco,slytherin). 
+esDe(luna,ravenclaw).
+esDe(iniesta,riverPlate).
 
 casa(Casa):-
     esDe(_,Casa).
@@ -143,8 +147,6 @@ esRecurrente(Accion):-%existencia
     magoHizo(Mago,Accion),
     magoHizo(Mago2,Accion),
     Mago \= Mago2. %afirmo que se trata de magos diferentes.
-
-
 
 % Punto 2.3
 % Saber cuál es el puntaje total de una casa, que es la suma de los puntos obtenidos por sus 
@@ -177,10 +179,31 @@ puntajeDeMago(Mago,Puntaje):-
 
 % % Punto 2.4
 % Saber cuál es la casa ganadora de la copa, que se verifica para aquella casa que haya 
-% obtenido una cantidad mayor de puntos que todas las otras
-% casaGanadora(Casa):-
+% obtenido una cantidad mayor de puntos que todas las otras.
+
+casaGanadora(Casa):-
+    puntajeTotal(Casa,PuntajeMasAlto),
+    not((puntajeTotal(OtraCasa,Puntaje),OtraCasa\=Casa,Puntaje>PuntajeMasAlto)).
 
 
+% Punto 2.5
+% Queremos agregar la posibilidad de ganar puntos por responder preguntas en clase. La 
+% información que nos interesa de las respuestas en clase son: cuál fue la pregunta, cuál es la 
+% % dificultad de la pregunta y qué profesor la hizo.  
+% Por ejemplo, sabemos que Hermione respondió a la pregunta de dónde se encuentra un Bezoar, de 
+% dificultad 20, realizada por el profesor Snape, y cómo hacer levitar una pluma, de dificultad 25, 
+% realizada por el profesor Flitwick. 
+ 
+% Modificar lo que sea necesario para que este agregado funcione con lo desarrollado hasta ahora, 
+% teniendo en cuenta que los puntos que se otorgan equivalen a la dificultad de la pregunta, a menos 
+% que la haya hecho Snape, que da la mitad de puntos en relación a la dificultad de la pregunta. 
+
+
+
+sumarPuntosPorPreguntas.
+
+numeroEntero(draco,-2).
+numeroEntero(draco,10).
 
 :- begin_tests(parcial).
 
@@ -210,16 +233,27 @@ test(parte2_a_No_Hizo_niguna_mala_accion,nondet):-
 test(parte2_b_accion_recurrente,nondet):-
     esRecurrente(ir_tercer_piso).
 
-test(parte2_c_1_puntaje_invididual):-
-    % puntajeDeMago(harry,-(1*115)),
-    % puntajeDeMago(hermione,-35),
-    puntajeDeMago(draco,0),
-    puntajeDeMago(ron,50),
-    puntajeDeMago(luna,0).
+test(parte2_d_casaGanadora,nondet):-
+    casaGanadora(riverPlate).
 
-test(parte2_c_2_puntaje_de_la_casa):-
-    % puntajeTotal(gryffindor,-100),
-    puntajeTotal(slytherin,0),
-    puntajeTotal(ravenclaw,0).
+test(prueba_numero_entero):-
+    numeroEntero(draco,-2),
+    numeroEntero(draco,10).
+
+% test(parte2_c_1_puntaje_invididual,nondet):-
+%     puntajeDeMago(harry,-115).
+%     puntajeDeMago(harry,-115),
+% %     puntajeDeMago(hermione,-35),
+% %     puntajeDeMago(draco,0),
+% %     puntajeDeMago(ron,50),
+% %     puntajeDeMago(luna,0),
+% %     puntajeDeMago(iniesta,330).
+
+% test(parte2_c_2_puntaje_de_la_casa):-
+%     puntajeTotal(riverPlate,330),
+%     puntajeTotal(gryffindor,-100),
+%     puntajeTotal(slytherin,0),
+%     puntajeTotal(ravenclaw,0).
+
 
 :- end_tests(parcial).
