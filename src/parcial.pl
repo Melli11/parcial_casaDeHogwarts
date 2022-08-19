@@ -26,6 +26,9 @@ seleccionSombrero(hufflepuff,amistoso).
 mago(Mago):- 
     sangre(Mago,_).
 
+mago(ron).
+mago(luna).
+
 % Punto1)
 % 1. Saber si una casa permite entrar a un mago, lo cual se cumple para cualquier mago y 
 % cualquier casa excepto en el caso de Slytherin, que no permite entrar a magos de sangre 
@@ -66,77 +69,112 @@ puedeQuedarSeleccionado(gryffindor,hermione).
 % ellos se caracterizan por ser amistosos y cada uno podría estar en la misma casa que el 
 % siguiente. No hace falta que sea inversible, se consultará de forma individual.
 
-% cadenaDeAmistades(Lista_Magos):-
-%     member(Mago,Lista_Magos),
-%     forall(member(Mago,_),(sonTodosAmistosos(Mago),estaEnLaMismaCasaQueElSiguiente(Mago))).
-
-% sonTodosAmistosos(Mago):-
-%     mago(Mago),
-%     forall(caracter(Mago,_),(Mago,amistoso))
-
-% estaEnLaMismaCasaQueElSiguiente(Mago):-
-
-
 % Parte 2 - La copa de las casas 
 
-% accion(harry,mala(fuera_de_la_cama,-50)).
-% accion(harry,mala(fue_al_bosque,-50)).
-% accion(harry,mala(fue_al_tercer_piso,-75)).
-% accion(hermione,mala(fue_al_tercer_piso,-75)).
-% accion(hermione,mala(fue_seccion_restringida_biblioteca,-10)).
-% accion(draco,neutral(fue_a_las_mazmorras)).
-% accion(ron,buena(gano_partida_ajedrez_magico,50)).
-% accion(hermione,buena(salvo_a_sus_amigos,50)).
-% accion(harry,buena(vencio_voldemort,60)).
+lugar(prohibido(ir_al_bosque,-50)).
+lugar(prohibido(ir_seccion_restringida_biblio,-10)).
+lugar(prohibido(ir_tercer_piso,-75)).
+lugar(no_prohibido(ir_a_mazmorras)).
 
-% puntajeTotalDeUnMago(Mago,Puntaje):-
-%     accionesyPuntajes(Accion,Puntaje),
-%     accion(Mago,Accion).
+accion(mala,fuera_de_la_cama,-50).
+accion(mala,Actividad,Puntaje):-
+    lugar(prohibido(Actividad,Puntaje)). %abro functor
 
-% esDe(hermione, gryffindor). 
-% esDe(ron, gryffindor). 
-% esDe(harry, gryffindor). 
-% esDe(draco, slytherin). 
-% esDe(luna, ravenclaw).
+accion(neutral,Actividad,0):-
+    lugar(no_prohibido(Actividad)). %abro functor
+
+accion(buena,Actividad,Puntaje):- %genero por descarte
+    reconocimiento(_,Actividad,Puntaje),
+    not(accion(mala,Actividad,Puntaje)).
+
+magoHizo(harry,fuera_de_la_cama).
+magoHizo(harry,ir_al_bosque).
+magoHizo(harry,ir_tercer_piso).
+magoHizo(hermione,ir_tercer_piso).
+magoHizo(hermione,ir_seccion_restringida_biblio).
+magoHizo(draco,ir_a_mazmorras).
+magoHizo(ron,ganar_partida_ajedrez_magico).
+magoHizo(hermione,salvar_amigos).
+magoHizo(harry,vencer_voldemort).
+
+%reconocimiento para las malas acciones
+reconocimiento(Mago,Accion,Puntaje):-
+    magoHizo(Mago,Accion),
+    accion(mala,Accion,Puntaje).
+
+reconocimiento(Mago,_,0):-
+    mago(Mago),
+    accion(neutral,_,_).
+
+% reconocimiento para las buenas acciones individuales
+reconocimiento(ron,ganar_partida_ajedrez_magico,50).
+reconocimiento(hermione,salvar_amigos,50).
+reconocimiento(harry,vencer_voldemort,60).
+
+
+
+esDe(hermione, gryffindor). 
+esDe(ron, gryffindor). 
+esDe(harry, gryffindor). 
+esDe(draco, slytherin). 
+esDe(luna, ravenclaw).
+
+casa(Casa):-
+    esDe(_,Casa).
 
 % Punto 2.1
 % Saber si un mago es buen alumno, que se cumple si hizo alguna acción y ninguna de las cosas 
 % que hizo se considera una mala acción (que son aquellas que provocan un puntaje negativo)
 
-% esBuenAlumno(Mago):-
-%     accion(Mago,_),
-%     not(accion(Mago,mala(_,_,_))).
+hizoAlgoMalo(Mago,Accion):- %existencia
+    magoHizo(Mago,Accion),
+    accion(mala,Accion,_).
+
+esBuenAlumno(Mago):-
+    magoHizo(Mago,_), %el mago hizo alguna accion
+    not(hizoAlgoMalo(Mago,_)). %mas simple
+% not((magoHizo(Mago,Accion),accion(mala,Accion,_))).
+
 
 % Punto 2.2
 % Saber si una acción es recurrente, que se cumple si más de un mago hizo esa misma acción. 
 
-% laAccionEsRecurrente(Accion):-
-%    conjuntoDeAcciones(Mago,Accion),
-%    conjuntoDeAcciones(OtroMago,Accion),
-%    OtroMago \= Mago.
- 
+esRecurrente(Accion):-%existencia
+    magoHizo(Mago,Accion),
+    magoHizo(Mago2,Accion),
+    Mago \= Mago2. %afirmo que se trata de magos diferentes.
+
+
+
+% Punto 2.3
 % Saber cuál es el puntaje total de una casa, que es la suma de los puntos obtenidos por sus 
 % miembros.
 
-% sumaDelPuntajeTotal(Casa):-
-%     esDe(Mago,Casa),
+puntajeTotal(Casa,Puntaje):-
+    esDe(_,Casa),
+    findall(Puntaje,(esDe(Mago,Casa),puntajeDeMago(Mago,Puntaje)),ListaDePuntos),
+    sum_list(ListaDePuntos,Puntaje).
+
+puntajeDeMago(Mago,Puntaje):-
+    mago(Mago),
+    findall(Puntaje,reconocimiento(Mago,_,Puntaje),ListaDePuntos),
+    sum_list(ListaDePuntos,Puntaje).
 
 
-% accionesyPuntajes(Accion,Puntaje):-
-%     accion(_,buena(Accion,Puntaje)).
+% puntajes
+% harry = -115
+% hermione = -35
+% draco = 0
+% ron = +50
+% luna = 0
 
-% accionesyPuntajes(Accion,Puntaje):-
-%     accion(_,mala(Accion,Puntaje)).
+% gryffindor:
+% hermione, ron, harry = -35 +50 -115 = -100
+% slytherin :
+% draco = 0
 
-
-
-
-% conjuntoDeAcciones(Mago,Accion):-
-%     accion(Mago,mala(Accion,_,_)).
-% conjuntoDeAcciones(Mago,Accion):-
-%    accion(Mago,neutral(Accion)).
-% conjuntoDeAcciones(Mago,Accion):-
-%     accion(Mago,buena(Accion,_,_)).
+% ravenclaw:
+% luna = 0
 
 
 :- begin_tests(parcial).
@@ -156,13 +194,28 @@ test(parte1b_tiene_el_caracter_apropiado_para_la_casa,nondet):-
     tieneElCaracterApropiado(hermione,ravenclaw),
     tieneElCaracterApropiado(harry,hufflepuff).
 
-% test(parte1c_puede_quedar_seleccionado,nondet):-
-%     puedeQuedarSeleccionado(slytherin,draco),
-%     puedeQuedarSeleccionado(gryffindor,hermione).
+test(parte1c_puede_quedar_seleccionado,nondet):-
+    puedeQuedarSeleccionado(slytherin,draco),
+    puedeQuedarSeleccionado(gryffindor,hermione).
 
-% test(parte2_a_No_Hizo_niguna_mala_accion,nondet):-
-%     esBuenAlumno(draco),
-%     esBuenAlumno(ron).
+test(parte2_a_No_Hizo_niguna_mala_accion,nondet):-
+    esBuenAlumno(draco),
+    esBuenAlumno(ron).
 
+test(parte2_b_accion_recurrente,nondet):-
+    esRecurrente(ir_tercer_piso).
+
+test(parte2_c_1_puntaje_invididual):-
+    
+    puntajeDeMago(harry,-115),
+    puntajeDeMago(hermione,-35),
+    puntajeDeMago(draco,0),
+    puntajeDeMago(ron,50),
+    puntajeDeMago(luna,0).
+
+test(parte2_c_2_puntaje_de_la_casa):-
+    puntajeTotal(gryffindor,-100),
+    puntajeTotal(slytherin,0),
+    puntajeTotal(ravenclaw,0).
 
 :- end_tests(parcial).
