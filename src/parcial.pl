@@ -160,7 +160,6 @@ puntajeDeMago(Mago,Puntaje):-
     findall(Puntaje,reconocimiento(Mago,_,Puntaje),ListaDePuntos),
     sum_list(ListaDePuntos,Puntaje).
 
-
 % puntajes
 % harry = -115
 % hermione = -35
@@ -175,6 +174,12 @@ puntajeDeMago(Mago,Puntaje):-
 
 % ravenclaw:
 % luna = 0
+
+% % Punto 2.4
+% Saber cuál es la casa ganadora de la copa, que se verifica para aquella casa que haya 
+% obtenido una cantidad mayor de puntos que todas las otras
+% casaGanadora(Casa):-
+
 
 
 :- begin_tests(parcial).
@@ -206,15 +211,14 @@ test(parte2_b_accion_recurrente,nondet):-
     esRecurrente(ir_tercer_piso).
 
 test(parte2_c_1_puntaje_invididual):-
-    
-    puntajeDeMago(harry,-115),
-    puntajeDeMago(hermione,-35),
+    % puntajeDeMago(harry,-(1*115)),
+    % puntajeDeMago(hermione,-35),
     puntajeDeMago(draco,0),
     puntajeDeMago(ron,50),
     puntajeDeMago(luna,0).
 
 test(parte2_c_2_puntaje_de_la_casa):-
-    puntajeTotal(gryffindor,-100),
+    % puntajeTotal(gryffindor,-100),
     puntajeTotal(slytherin,0),
     puntajeTotal(ravenclaw,0).
 
