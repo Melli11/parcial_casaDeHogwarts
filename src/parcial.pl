@@ -84,9 +84,8 @@ accion(mala,Actividad,Puntaje):-
 accion(neutral,Actividad,0):-
     lugar(no_prohibido(Actividad)). %abro functor
 
-accion(buena,Actividad,Puntaje):- %genero por descarte
-    reconocimiento(_,Actividad,Puntaje),
-    not(accion(mala,Actividad,Puntaje)).
+accion(buena,Actividad,Puntaje):-
+    reconocimiento(_,Actividad,Puntaje).
 
 magoHizo(harry,fuera_de_la_cama).
 magoHizo(harry,ir_al_bosque).
@@ -109,9 +108,9 @@ reconocimiento(Mago,Accion,Puntaje):-
     magoHizo(Mago,Accion),
     accion(mala,Accion,Puntaje).
 
-reconocimiento(Mago,_,0):-
-    mago(Mago),
-    accion(neutral,_,_).
+%reconocimiento por las acciones neutras
+reconocimiento(_,Accion,0):-
+    accion(neutral,Accion,_).
 
 
 % reconocimiento para las buenas acciones individuales
@@ -246,14 +245,13 @@ test(parte2_d_casaGanadora,nondet):-
     casaGanadora(riverPlate).
 
 
-% test(parte2_c_1_puntaje_invididual,nondet):-
-%     puntajeDeMago(harry,-115).
-%     puntajeDeMago(harry,-115),
-% %     puntajeDeMago(hermione,-35),
-% %     puntajeDeMago(draco,0),
-% %     puntajeDeMago(ron,50),
-% %     puntajeDeMago(luna,0),
-% %     puntajeDeMago(iniesta,330).
+test(parte2_c_1_puntaje_invididual,nondet):-
+    puntajeDeMago(harry,-115),
+    puntajeDeMago(hermione,0),
+    puntajeDeMago(draco,0),
+    puntajeDeMago(ron,50),
+    puntajeDeMago(luna,0),
+    puntajeDeMago(iniesta,330).
 
 % test(parte2_c_2_puntaje_de_la_casa):-
 %     puntajeTotal(riverPlate,330),
