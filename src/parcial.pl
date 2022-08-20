@@ -100,6 +100,10 @@ magoHizo(harry,vencer_voldemort).
 magoHizo(iniesta,vencer_voldemort).
 magoHizo(iniesta,ganar_partida_ajedrez_magico).
 
+magoHizo(hermione,respondio(ubicacion_bezoar,20,snape)).
+magoHizo(hermione,respondio(como_levitar_pluma,25,flitwick)).
+
+
 %reconocimiento para las malas acciones
 reconocimiento(Mago,Accion,Puntaje):-
     magoHizo(Mago,Accion),
@@ -109,12 +113,23 @@ reconocimiento(Mago,_,0):-
     mago(Mago),
     accion(neutral,_,_).
 
+
 % reconocimiento para las buenas acciones individuales
 reconocimiento(ron,ganar_partida_ajedrez_magico,50).
 reconocimiento(hermione,salvar_amigos,50).
 reconocimiento(harry,vencer_voldemort,60).
 reconocimiento(iniesta,vencer_voldemort,160).
 reconocimiento(iniesta,ganar_partida_ajedrez_magico,170).
+
+reconocimiento(Mago,Pregunta,Puntaje):-
+    magoHizo(Mago,respondio(Pregunta,Dificultad,snape)),
+    Puntaje is Dificultad/2.
+
+reconocimiento(Mago,Pregunta,Puntaje):-
+    magoHizo(Mago,respondio(Pregunta,Dificultad,Profesor)),
+    Profesor \= snape,
+    Puntaje is Dificultad.
+
 
 esDe(hermione,gryffindor). 
 esDe(ron,gryffindor). 
@@ -199,12 +214,6 @@ casaGanadora(Casa):-
 % que la haya hecho Snape, que da la mitad de puntos en relación a la dificultad de la pregunta. 
 
 
-
-sumarPuntosPorPreguntas.
-
-numeroEntero(draco,-2).
-numeroEntero(draco,10).
-
 :- begin_tests(parcial).
 
 test(parte1a_laCasaPermiteEntrar_a_un_mago,nondet):-
@@ -236,9 +245,6 @@ test(parte2_b_accion_recurrente,nondet):-
 test(parte2_d_casaGanadora,nondet):-
     casaGanadora(riverPlate).
 
-test(prueba_numero_entero):-
-    numeroEntero(draco,-2),
-    numeroEntero(draco,10).
 
 % test(parte2_c_1_puntaje_invididual,nondet):-
 %     puntajeDeMago(harry,-115).
